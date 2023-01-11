@@ -1,0 +1,45 @@
+---
+name: release
+
+on:
+  pull_request:
+    types: [ready_for_review]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [amd64]
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: version
+        run: echo "::set-output name=version::$(./nfhelp.sh -v)"
+        id: version
+        
+      - name: Tar files
+        run: tar -zcvf nfhelp.tar.gz nfhelp.sh
+
+      - name: release
+        uses: actions/create-release@v1
+        id: release
+        with:
+          draft: false
+          prerelease: false
+          release_name: v${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload a Build Artifact for release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: nfhelp.tar.gz
+          asset_name: nfhelp.tar.gz
+          asset_content_type: application/gzip

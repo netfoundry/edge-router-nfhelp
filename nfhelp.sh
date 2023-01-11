@@ -224,7 +224,7 @@ create_aliases() {
     alias hush-net-info="touch \$HOME/.hushnet; echo To re-enable this, remove the file .hushnet"
     alias hush-ubuntu-info="touch \$HOME/.hushlogin; echo To re-enable this, remove the file .hushlogin"
     alias nfhelp-reload="source /etc/profile.d/nfhelp.sh"
-    alias nfhelp-update="curl -sL TBD > /tmp/nf_login_msg.sh; sudo chmod 755 /tmp/nfhelp.sh; sudo chown root:root /tmp/nfhelp.sh; sudo mv /tmp/nfhelp.sh /etc/profile.d/nfhelp.sh; source /etc/profile.d/nfhelp.sh"
+    alias nfhelp-update="curl -sL https://github.com/netfoundry/edge-router-nfhelp/releases/latest/download/nfhelp.tar.gz > /tmp/nfhelp.tar.gz;sudo tar Cxvfz /etc/profile.d/ /tmp/nfhelp.tar.gz ; source /etc/profile.d/nfhelp.sh; sudo rm /tmp/nfhelp.tar.gz"
     alias nfhelp-version="/etc/profile.d/nfhelp.sh -v"
 
 }
