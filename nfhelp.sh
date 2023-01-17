@@ -137,8 +137,11 @@ print_binary_info() {
 
   fi
 
-  ZITI_CLI_VERSION=$(${ZITI_CLI} --version | cut -d"v" -f 2)
-  printf '\nCLI version: %s\n' "${ZITI_CLI_VERSION}"
+
+  if [[ -f ${ZITI_CLI} ]]; then
+    ZITI_CLI_VERSION=$(${ZITI_CLI} --version | cut -d"v" -f 2)
+    printf '\nCLI version: %s\n' "${ZITI_CLI_VERSION}"
+  fi
 }
 
 # print registration information
