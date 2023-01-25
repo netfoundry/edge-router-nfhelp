@@ -11,6 +11,7 @@
 #
 #  Change log
 #  1.0.0 - initial release
+#  1.0.1 - check if ziti cli exists before running section
 #
 ### Export Environment variables
 export ZITI_HOME="/opt/netfoundry/ziti"
@@ -245,7 +246,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.0.0"
+    echo "1.0.1"
 }
 
 ### Main
