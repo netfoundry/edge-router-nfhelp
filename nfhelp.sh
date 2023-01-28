@@ -16,6 +16,8 @@
 export ZITI_HOME="/opt/netfoundry/ziti"
 export ZITI_CLI="${ZITI_HOME}/ziti"
 export ZITI_ROUTER="${ZITI_HOME}/ziti-router/ziti-router"
+export CLOUD_ZITI_HOME="/opt/netfoundry"
+export EBPF_HOME="${CLOUD_ZITI_HOME}/ebpf"
 
 ### Functions
 # version comparison
@@ -192,6 +194,11 @@ create_nfhelp() {
   geneve-enable       - enable geneve ebpf program
   geneve-disable      - disable geneve ebpf program
   geneve-status       - check if geneve ebpf program is enabled
+  geneve-update       - update the geneve binary to latest version
+  diverter-enable     - enable iptables diverter ebpf program
+  diverter-disable    - disable iptables diverter ebpf program
+  diverter-status     - check if iptables diverter ebpf program is enabled
+  diverter-update     - update the iptables diverter binary to latest version
   icmp-enable         - enable system to respond to icmp
   icmp-disable        - disable system to respond to icmp
   icmp-status         - current status of icmp
@@ -218,9 +225,14 @@ create_aliases() {
     alias sar-enable="echo 'ENABLED="true"'| sudo tee /etc/default/sysstat"
     alias sar-disable="echo 'ENABLED="false"'| sudo tee /etc/default/sysstat"
     alias sar-status="sudo cat /etc/default/sysstat"
-    alias geneve-enable="sudo tc qdisc add dev ${MYIF%:} clsact && sudo tc filter add dev ${MYIF%:} ingress bpf da obj /opt/netfoundry/ebpf/geneve.o sec sk_skb"
+    alias geneve-enable="sudo tc qdisc add dev ${MYIF%:} clsact && sudo tc filter add dev ${MYIF%:} ingress bpf da obj \$EBPF_HOME/geneve.o sec sk_skb"
     alias geneve-disable="sudo tc qdisc del dev ${MYIF%:} clsact"
     alias geneve-status="sudo tc filter show dev ${MYIF%:} ingress"
+    alias geneve-update="curl -sL /tmp/geneve.file https://api.github.com/repos/r-caamano/tc-ebpf-geneve-decapsulator/releases/latest > /tmp/geneve.file; export URL=\$(cat /tmp/geneve.file | jq -r .assets[].browser_download_url) && export NAME=\$(cat /tmp/geneve.file | jq -r .assets[].name); curl -sL \$URL > /tmp/\$NAME && sudo tar xzf /tmp/\$NAME -C \$EBPF_HOME; rm /tmp/geneve.file /tmp/\$NAME; unset URL NAME"
+    alias diverter-enable="sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --initial-setup"
+    alias diverter-disable="sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --revert-tproxy"
+    alias diverter-status="sudo tc filter show dev ${MYIF%:} ingress"
+    alias diverter-update="curl -sL /tmp/tproxy.file https://api.github.com/repos/r-caamano/ebpf-tproxy-splicer/releases/latest > /tmp/tproxy.file; export URL=\$(cat /tmp/tproxy.file | jq -r .assets[].browser_download_url) && export NAME=\$(cat /tmp/tproxy.file | jq -r .assets[].name); curl -sL \$URL > /tmp/\$NAME && sudo tar xzf /tmp/\$NAME -C \$EBPF_HOME; rm /tmp/tproxy.file /tmp/\$NAME; unset URL NAME"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
     alias icmp-disable="sudo sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules; echo WARNING! This will not take affect until after reboot"
     alias icmp-status="sudo grep 'ufw-before-input.*.icmp' /etc/ufw/before.rules"
