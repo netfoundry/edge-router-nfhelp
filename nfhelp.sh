@@ -13,10 +13,10 @@
 #  1.0.0 - initial release
 #
 ### Export Environment variables
-export ZITI_HOME="/opt/netfoundry/ziti"
+export CLOUD_ZITI_HOME="/opt/netfoundry"
+export ZITI_HOME="${CLOUD_ZITI_HOME}/ziti"
 export ZITI_CLI="${ZITI_HOME}/ziti"
 export ZITI_ROUTER="${ZITI_HOME}/ziti-router/ziti-router"
-export CLOUD_ZITI_HOME="/opt/netfoundry"
 export EBPF_HOME="${CLOUD_ZITI_HOME}/ebpf"
 
 ### Functions
