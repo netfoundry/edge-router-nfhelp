@@ -249,7 +249,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.0.0"
+    echo "1.1.0"
 }
 
 ### Main
