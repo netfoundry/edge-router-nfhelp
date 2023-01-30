@@ -11,6 +11,8 @@
 #
 #  Change log
 #  1.0.0 - initial release
+#  1.0.1 - check if ziti cli exists before running section
+#  1.0.2 - added aliases to new binaries
 #
 ### Export Environment variables
 export CLOUD_ZITI_HOME="/opt/netfoundry"
@@ -210,11 +212,12 @@ create_nfhelp() {
 # create main aliases
 create_aliases() {
 
+    alias router-registration="sudo /opt/netfoundry/router-registration"
     alias ziti="${ZITI_CLI}"
     alias zt-tcpdump="echo Press Ctrl-C to stop dump;export DATE=\$(date +"%y-%m-%d-%s"); sudo tcpdump -w /tmp/ziti-tcpdump-\$DATE.pcap;echo Created /tmp/ziti-tcpdump-\$DATE.pcap; unset DATE"
     alias zt-firewall-rules="sudo iptables -L NF-INTERCEPT -n -t filter"
     alias zt-intercepts="sudo iptables -L NF-INTERCEPT -n -t mangle"
-    alias zt-upgrade="[ -e /opt/netfoundry/zt-upgrade ] || (sudo curl -sL https://netfoundry.jfrog.io/artifactory/router-registration/zt-upgrade/release/linux/latest/zt-upgrade > /tmp/zt-upgrade && sudo mv /tmp/zt-upgrade /opt/netfoundry/zt-upgrade && sudo chmod +x /opt/netfoundry/zt-upgrade) ; sudo zt-upgrade"
+    alias zt-upgrade="sudo /opt/netfoundry/zt-upgrade"
     alias zt-status="sudo systemctl status ziti-router --no-pager; sudo systemctl status ziti-tunnel --no-pager"
     alias zt-logs-zip="export DATE=\$(date +"%y-%m-%d-%s") ;journalctl -u ziti-tunnel --no-pager --since '1 day ago' > /tmp/ziti-tunnel-\$DATE.log;journalctl -u ziti-router --no-pager --since '1 day ago' > /tmp/ziti-router-\$DATE.log; zip -r /home/$USER/ziti-logs-\$DATE.zip /tmp/ziti*.log /tmp/ziti*.out /tmp/ziti*.pcap; echo Created /home/$USER/ziti-logs-\$DATE.zip; unset DATE; sudo rm /tmp/ziti*"
     alias vm-support-bundle="sudo /opt/netfoundry/vm-support-bundle"
@@ -249,7 +252,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.1.0"
+    echo "1.0.2"
 }
 
 ### Main
