@@ -10,9 +10,7 @@
 ################################################
 #
 #  Change log
-#  1.0.0 - initial release
-#  1.0.1 - check if ziti cli exists before running section
-#  1.0.2 - added aliases to new binaries
+#  See https://github.com/netfoundry/edge-router-nfhelp/blob/main/CHANGELOG.md
 #
 ### Export Environment variables
 export CLOUD_ZITI_HOME="/opt/netfoundry"
@@ -111,40 +109,40 @@ print_net_info() {
 # print binary info
 print_binary_info() {
 
+  if [[ -f ${ZITI_CLI} ]]; then
+    ZITI_CLI_VERSION=$(${ZITI_CLI} --version | cut -d"v" -f 2)
+    printf '\nCLI version: %s\n' "${ZITI_CLI_VERSION}"
+    if vercomp "0.26.11" "${ZITI_CLI_VERSION}"; then
+      LOG_COMMAND="ops log-format -a"
+      STACK_COMMAND="agent"
+    else
+      LOG_COMMAND="log-format -a"
+      STACK_COMMAND="ps"
+    fi
+  fi
+
   if [[ -f ${ZITI_ROUTER}  ]]; then
     if [[ -f /opt/netfoundry/.name ]]; then
       ROUTER_NAME=$(cat /opt/netfoundry/.name)
       printf '\nRouter Name: %s\n' "${ROUTER_NAME}"
     fi
+    
     ZITI_ROUTER_VERSION=$(${ZITI_ROUTER}  version 2> /dev/null | cut -d"v" -f 2)
     printf '\nRouter version: %s\n' "${ZITI_ROUTER_VERSION}"
-    if vercomp "0.26.11" "${ZITI_ROUTER_VERSION}"; then
-      LOG_COMMAND="ops log-format -a"
-      PS_COMMAND="agent ps"
-    else
-      LOG_COMMAND="log-format -a"
-      PS_COMMAND="ps"
-    fi
 
     alias zt-router-pid="pidof ziti-router"
     alias zt-router-version="${ZITI_ROUTER} version"
     alias zt-router-logs="journalctl -u ziti-router -efo cat | ${ZITI_CLI} ${LOG_COMMAND}"
-    alias zt-router-cpu="export DATE=\$(date +"%y-%m-%d-%s") ;sudo -E ${ZITI_CLI} ${PS_COMMAND} pprof-cpu \$(pidof ziti-router) > /tmp/ziti-router-cpu-\$DATE.out; echo Created /tmp/ziti-router-cpu-\$DATE.out; unset DATE"
-    alias zt-router-stack="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${PS_COMMAND} stack \$(pidof ziti-router) > /tmp/ziti-router-stack-\$DATE.out; echo Created /tmp/ziti-router-stack-\$DATE.out; unset DATE"
-    alias zt-router-mem="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${PS_COMMAND} memstats \$(pidof ziti-router) > /tmp/ziti-router-mem-\$DATE.out; echo Created /tmp/ziti-router-mem-\$DATE.out; unset DATE"
-    alias zt-router-heap="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${PS_COMMAND} pprof-heap \$(pidof ziti-router) > /tmp/ziti-router-heap-\$DATE.out; echo Created /tmp/ziti-router-heap-\$DATE.out; unset DATE"
+    alias zt-router-cpu="export DATE=\$(date +"%y-%m-%d-%s") ;sudo -E ${ZITI_CLI} ${STACK_COMMAND} pprof-cpu \$(pidof ziti-router) > /tmp/ziti-router-cpu-\$DATE.out; echo Created /tmp/ziti-router-cpu-\$DATE.out; unset DATE"
+    alias zt-router-stack="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} stack \$(pidof ziti-router) > /tmp/ziti-router-stack-\$DATE.out; echo Created /tmp/ziti-router-stack-\$DATE.out; unset DATE"
+    alias zt-router-mem="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} memstats \$(pidof ziti-router) > /tmp/ziti-router-mem-\$DATE.out; echo Created /tmp/ziti-router-mem-\$DATE.out; unset DATE"
+    alias zt-router-heap="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} pprof-heap \$(pidof ziti-router) > /tmp/ziti-router-heap-\$DATE.out; echo Created /tmp/ziti-router-heap-\$DATE.out; unset DATE"
     alias zt-router-restart="sudo systemctl restart ziti-router"
     alias zt-router-start="sudo systemctl start ziti-router"
     alias zt-router-stop="sudo systemctl stop ziti-router"
     alias zt-router-status="sudo systemctl status ziti-router --no-pager"
     alias zt-router-health="curl -k https://localhost:8081/health-checks"
 
-  fi
-
-
-  if [[ -f ${ZITI_CLI} ]]; then
-    ZITI_CLI_VERSION=$(${ZITI_CLI} --version | cut -d"v" -f 2)
-    printf '\nCLI version: %s\n' "${ZITI_CLI_VERSION}"
   fi
 }
 
@@ -252,7 +250,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.1.0"
+    echo "1.1.1"
 }
 
 ### Main
