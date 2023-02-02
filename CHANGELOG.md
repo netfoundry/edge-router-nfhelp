@@ -18,14 +18,28 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added 
 
-- New nfhelp commands
+- nfhelp commands
     - `diverter-enable`     - enable iptables diverter ebpf program
     - `diverter-disable`    - disable iptables diverter ebpf program
     - `diverter-status`     - check if iptables diverter ebpf program is enabled
-    - `diverter-update`    - update the iptables diverter binary to latest version
+    - `diverter-update`     - update the iptables diverter binary to latest version
 
 ## [1.1.1] - 2023-01-31
 
 - bugfix: PS_COMMAND renamed to STACK_COMMAND & adjusted for versions above 0.26.11 - 
 - bugfix: Determining which CLI command is now based on CLI version instead of Router
+
+## [1.2.0] - 2023-02-02
+
+### Deprecated
+
+- nfhelp command
+    - `diverter-update`    - update the iptables diverter binary to latest version 
+
+### Added
+
+- nfhelp commands
+    - `diverter-update-small`  - update the iptables diverter binary to latest version - 1000 map entries
+    - `diverter-update-medium` - update the iptables diverter binary to latest version - 5000 map entries
+    - `diverter-update-large`  - update the iptables diverter binary to latest version - 10000 map entries
 

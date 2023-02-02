@@ -188,21 +188,23 @@ create_nfhelp() {
   zt-intercepts       - print current mangle table of NF-INTERCEPT chain - intercept
   zt-upgrade          - upgrade the local ziti software\n
  \033[0;31mExtra Commands:\033[0m
-  sar-enable          - enable sar collection
-  sar-disable         - disable sar collection
-  sar-status          - current status of sysstat
-  diverter-enable     - enable iptables diverter ebpf program
-  diverter-disable    - disable iptables diverter ebpf program
-  diverter-status     - check if iptables diverter ebpf program is enabled
-  diverter-update     - update the iptables diverter binary to latest version
-  icmp-enable         - enable system to respond to icmp
-  icmp-disable        - disable system to respond to icmp
-  icmp-status         - current status of icmp
-  hush-net-info       - disable ip & network information from displaying on login
-  hush-ubuntu-info    - disable the Ubuntu login banner
-  nfhelp-reload       - reload nfhelp menu
-  nfhelp-update       - update nfhelp menu
-  nfhelp-version      - display nfhelp menu version
+  sar-enable             - enable sar collection
+  sar-disable            - disable sar collection
+  sar-status             - current status of sysstat
+  diverter-enable        - enable iptables diverter ebpf program
+  diverter-disable       - disable iptables diverter ebpf program
+  diverter-status        - check if iptables diverter ebpf program is enabled
+  diverter-update-small  - update the iptables diverter binary to latest version - 1000 map entries
+  diverter-update-medium - update the iptables diverter binary to latest version - 5000 map entries
+  diverter-update-large  - update the iptables diverter binary to latest version - 10000 map entries
+  icmp-enable            - enable system to respond to icmp
+  icmp-disable           - disable system to respond to icmp
+  icmp-status            - current status of icmp
+  hush-net-info          - disable ip & network information from displaying on login
+  hush-ubuntu-info       - disable the Ubuntu login banner
+  nfhelp-reload          - reload nfhelp menu
+  nfhelp-update          - update nfhelp menu
+  nfhelp-version         - display nfhelp menu version
   "; else echo -e "\033[0;31mPlease register before you try the help commands\033[0m"; fi
   '
 }
@@ -252,7 +254,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.1.1"
+    echo "1.2.0"
 }
 
 ### Main
