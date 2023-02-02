@@ -188,21 +188,23 @@ create_nfhelp() {
   zt-intercepts       - print current mangle table of NF-INTERCEPT chain - intercept
   zt-upgrade          - upgrade the local ziti software\n
  \033[0;31mExtra Commands:\033[0m
-  sar-enable          - enable sar collection
-  sar-disable         - disable sar collection
-  sar-status          - current status of sysstat
-  diverter-enable     - enable iptables diverter ebpf program
-  diverter-disable    - disable iptables diverter ebpf program
-  diverter-status     - check if iptables diverter ebpf program is enabled
-  diverter-update     - update the iptables diverter binary to latest version
-  icmp-enable         - enable system to respond to icmp
-  icmp-disable        - disable system to respond to icmp
-  icmp-status         - current status of icmp
-  hush-net-info       - disable ip & network information from displaying on login
-  hush-ubuntu-info    - disable the Ubuntu login banner
-  nfhelp-reload       - reload nfhelp menu
-  nfhelp-update       - update nfhelp menu
-  nfhelp-version      - display nfhelp menu version
+  sar-enable             - enable sar collection
+  sar-disable            - disable sar collection
+  sar-status             - current status of sysstat
+  diverter-enable        - enable iptables diverter ebpf program
+  diverter-disable       - disable iptables diverter ebpf program
+  diverter-status        - check if iptables diverter ebpf program is enabled
+  diverter-update-small  - update the iptables diverter binary to latest version - 1000 map entries
+  diverter-update-medium - update the iptables diverter binary to latest version - 5000 map entries
+  diverter-update-large  - update the iptables diverter binary to latest version - 10000 map entries
+  icmp-enable            - enable system to respond to icmp
+  icmp-disable           - disable system to respond to icmp
+  icmp-status            - current status of icmp
+  hush-net-info          - disable ip & network information from displaying on login
+  hush-ubuntu-info       - disable the Ubuntu login banner
+  nfhelp-reload          - reload nfhelp menu
+  nfhelp-update          - update nfhelp menu
+  nfhelp-version         - display nfhelp menu version
   "; else echo -e "\033[0;31mPlease register before you try the help commands\033[0m"; fi
   '
 }
@@ -225,7 +227,9 @@ create_aliases() {
     alias diverter-enable="sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --initial-setup"
     alias diverter-disable="sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --revert-tproxy"
     alias diverter-status="sudo tc filter show dev ${MYIF%:} ingress"
-    alias diverter-update="curl -sL /tmp/tproxy.file https://api.github.com/repos/netfoundry/ebpf-tproxy-splicer/releases/latest > /tmp/tproxy.file; export URL=\$(cat /tmp/tproxy.file | jq -r .assets[].browser_download_url) && export NAME=\$(cat /tmp/tproxy.file | jq -r .assets[].name); curl -sL \$URL > /tmp/\$NAME && sudo tar xzf /tmp/\$NAME -C \$EBPF_HOME; rm /tmp/tproxy.file /tmp/\$NAME; unset URL NAME"
+    alias diverter-update-small="curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_small > /tmp/tproxy_splicer_small.tar.gz; sudo tar xvfz /tmp/tproxy_splicer_small.tar.gz  -C \$EBPF_HOME; rm /tmp/tproxy_splicer_small.tar.gz"
+    alias diverter-update-medium="curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_medium > /tmp/tproxy_splicer_medium.tar.gz; sudo tar xvfz /tmp/tproxy_splicer_medium.tar.gz -C \$EBPF_HOME; rm /tmp/tproxy_splicer_medium.tar.gz"
+    alias diverter-update-large="curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_large > /tmp/tproxy_splicer_large.tar.gz; sudo tar xvfz /tmp/tproxy_splicer_large.tar.gz -C \$EBPF_HOME; rm /tmp/tproxy_splicer_large.tar.gz"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
     alias icmp-disable="sudo sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules; echo WARNING! This will not take affect until after reboot"
     alias icmp-status="sudo grep 'ufw-before-input.*.icmp' /etc/ufw/before.rules"
@@ -250,7 +254,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.1.1"
+    echo "1.2.0"
 }
 
 ### Main
