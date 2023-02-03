@@ -39,7 +39,7 @@ All notable changes to this project will be documented in this file. The format 
         - `--medium`            - 5000 map entries
         - `--large`             - 10000 map entries
     - `zt-intercepts`           - added ability to list intercepts based on the data source (i.e. iptables, ebpf map)
-    - `zt-zt-firewall-rules`    - added ability to list rules based on the data source (i.e. iptables, ebpf map)
+    - `zt-firewall-rules`    - added ability to list rules based on the data source (i.e. iptables, ebpf map)
 
 ### Added
 
