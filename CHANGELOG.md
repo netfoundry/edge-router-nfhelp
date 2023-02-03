@@ -29,17 +29,19 @@ All notable changes to this project will be documented in this file. The format 
 - bugfix: PS_COMMAND renamed to STACK_COMMAND & adjusted for versions above 0.26.11 - 
 - bugfix: Determining which CLI command is now based on CLI version instead of Router
 
-## [1.2.0] - 2023-02-02
+## [1.2.0] - 2023-02-03
 
-### Deprecated
+### Changed
 
-- nfhelp command
-    - `diverter-update`    - update the iptables diverter binary to latest version 
+- nfhelp commands
+    - `diverter-update`         - update the iptables diverter binary to latest version with the map table size option
+        - `--small`             - 1000 map entries
+        - `--medium`            - 5000 map entries
+        - `--large`             - 10000 map entries
+    - `zt-intercepts`           - added ability to list intercepts based on the data source (i.e. iptables, ebpf map)
+    - `zt-zt-firewall-rules`    - added ability to list rules based on the data source (i.e. iptables, ebpf map)
 
 ### Added
 
-- nfhelp commands
-    - `diverter-update-small`  - update the iptables diverter binary to latest version - 1000 map entries
-    - `diverter-update-medium` - update the iptables diverter binary to latest version - 5000 map entries
-    - `diverter-update-large`  - update the iptables diverter binary to latest version - 10000 map entries
-
+- nfhelp command
+    - `diverter-map`            - user space program to access ebpf map
