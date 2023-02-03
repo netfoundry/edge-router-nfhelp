@@ -194,9 +194,8 @@ create_nfhelp() {
   diverter-enable        - enable iptables diverter ebpf program
   diverter-disable       - disable iptables diverter ebpf program
   diverter-status        - check if iptables diverter ebpf program is enabled
-  diverter-update-small  - update the iptables diverter binary to latest version - 1000 map entries
-  diverter-update-medium - update the iptables diverter binary to latest version - 5000 map entries
-  diverter-update-large  - update the iptables diverter binary to latest version - 10000 map entries
+  diverter-map           - user space program to access ebpf map
+  diverter-update        - update the iptables diverter binary to latest version, needs to pass map size
   icmp-enable            - enable system to respond to icmp
   icmp-disable           - disable system to respond to icmp
   icmp-status            - current status of icmp
@@ -209,14 +208,84 @@ create_nfhelp() {
   '
 }
 
+# Firewall Rule Check based on the tproxy mode
+check_firewall() {
+  CHECKMODE=`yq '.listeners[] | select(.binding == "tunnel").options.mode' $CLOUD_ZITI_HOME/ziti/ziti-router/config.yml`
+  if [ $CHECKMODE == null ] || [ $CHECKMODE == "tproxy" ]; then 
+    sudo iptables -L NF-INTERCEPT -n -t filter
+  else  
+    sudo $EBPF_HOME/objects/etables --list --passthrough
+  fi
+}
+
+# Intercept Rule Check based on the tproxy mode
+check_intercepts() {
+  CHECKMODE=`yq '.listeners[] | select(.binding == "tunnel").options.mode' $CLOUD_ZITI_HOME/ziti/ziti-router/config.yml`
+  if [ $CHECKMODE == null ] || [ $CHECKMODE == "tproxy" ]; then 
+    sudo iptables -L NF-INTERCEPT -n -t mangle
+  else  
+    sudo $EBPF_HOME/objects/etables --list --intercepts
+  fi
+}
+
+# Called by diverter_update function
+diverter_usage() {
+    cat <<USAGE
+
+    Usage: diverter_update [--small] [--medium] [--large]
+
+    Options:
+      --small       true if 1000 entries are required
+      --medium      true if 5000 entries are required
+      --large       true if 10000 entries are required
+      -h | --help   help menu
+USAGE
+}
+
+# Diverter update function to the latest version
+diverter_update() {
+    SMALL=false
+    MEDIUM=false
+    LARGE=false
+
+    case $1 in
+      --small)
+          SMALL=true;;
+      --medium)
+          MEDIUM=true;;
+      --large)
+          LARGE=true;;
+      -h | --help)
+          diverter_usage;;
+      *)
+          diverter_usage;;
+    esac
+    
+    if [ $SMALL == true ]; then
+      curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_small > /tmp/tproxy_splicer_small.tar.gz
+      sudo tar xvfz /tmp/tproxy_splicer_small.tar.gz  -C $EBPF_HOME
+      rm /tmp/tproxy_splicer_small.tar.gz
+    fi
+    if [ $MEDIUM == true ]; then
+      curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_medium > /tmp/tproxy_splicer_medium.tar.gz
+      sudo tar xvfz /tmp/tproxy_splicer_medium.tar.gz -C $EBPF_HOME
+      rm /tmp/tproxy_splicer_medium.tar.gz
+    fi
+    if [ $LARGE == true ]; then
+      curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_large > /tmp/tproxy_splicer_large.tar.gz
+      sudo tar xvfz /tmp/tproxy_splicer_large.tar.gz -C $EBPF_HOME
+      rm /tmp/tproxy_splicer_large.tar.gz
+    fi
+}
+
 # create main aliases
 create_aliases() {
 
     alias router-registration="sudo /opt/netfoundry/router-registration"
     alias ziti="${ZITI_CLI}"
     alias zt-tcpdump="echo Press Ctrl-C to stop dump;export DATE=\$(date +"%y-%m-%d-%s"); sudo tcpdump -w /tmp/ziti-tcpdump-\$DATE.pcap;echo Created /tmp/ziti-tcpdump-\$DATE.pcap; unset DATE"
-    alias zt-firewall-rules="sudo iptables -L NF-INTERCEPT -n -t filter"
-    alias zt-intercepts="sudo iptables -L NF-INTERCEPT -n -t mangle"
+    alias zt-firewall-rules="check_firewall"
+    alias zt-intercepts="check_intercepts"
     alias zt-upgrade="sudo /opt/netfoundry/zt-upgrade"
     alias zt-status="sudo systemctl status ziti-router --no-pager; sudo systemctl status ziti-tunnel --no-pager"
     alias zt-logs-zip="export DATE=\$(date +"%y-%m-%d-%s") ;journalctl -u ziti-tunnel --no-pager --since '1 day ago' > /tmp/ziti-tunnel-\$DATE.log;journalctl -u ziti-router --no-pager --since '1 day ago' > /tmp/ziti-router-\$DATE.log; zip -r /home/$USER/ziti-logs-\$DATE.zip /tmp/ziti*.log /tmp/ziti*.out /tmp/ziti*.pcap; echo Created /home/$USER/ziti-logs-\$DATE.zip; unset DATE; sudo rm /tmp/ziti*"
@@ -227,9 +296,8 @@ create_aliases() {
     alias diverter-enable="sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --initial-setup"
     alias diverter-disable="sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --revert-tproxy"
     alias diverter-status="sudo tc filter show dev ${MYIF%:} ingress"
-    alias diverter-update-small="curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_small > /tmp/tproxy_splicer_small.tar.gz; sudo tar xvfz /tmp/tproxy_splicer_small.tar.gz  -C \$EBPF_HOME; rm /tmp/tproxy_splicer_small.tar.gz"
-    alias diverter-update-medium="curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_medium > /tmp/tproxy_splicer_medium.tar.gz; sudo tar xvfz /tmp/tproxy_splicer_medium.tar.gz -C \$EBPF_HOME; rm /tmp/tproxy_splicer_medium.tar.gz"
-    alias diverter-update-large="curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_large > /tmp/tproxy_splicer_large.tar.gz; sudo tar xvfz /tmp/tproxy_splicer_large.tar.gz -C \$EBPF_HOME; rm /tmp/tproxy_splicer_large.tar.gz"
+    alias diverter-map="sudo $EBPF_HOME/objects/etables"
+    alias diverter-update="diverter_update"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
     alias icmp-disable="sudo sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules; echo WARNING! This will not take affect until after reboot"
     alias icmp-status="sudo grep 'ufw-before-input.*.icmp' /etc/ufw/before.rules"
