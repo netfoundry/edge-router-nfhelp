@@ -194,8 +194,9 @@ create_nfhelp() {
   diverter-enable        - enable iptables diverter ebpf program
   diverter-disable       - disable iptables diverter ebpf program
   diverter-status        - check if iptables diverter ebpf program is enabled
-  diverter-map-add       - add all user ingress rules to ebpf map
-  diverter-map-delete    - delete all user ingress rules from ebpf map
+  diverter-map-add       - add all user ingress rules to ebpf map read from $EBPF_HOME/user_ingress_rules.yml
+  diverter-map-delete    - delete all user ingress rules from ebpf map read from $EBPF_HOME/user_ingress_rules.yml
+  diverter-map-update    - link to the etables program used to update ebpf map
   diverter-update        - update the iptables diverter binary to latest version, needs to pass map size
   diverter-trace         - show ebpf trace logs
   icmp-enable            - enable system to respond to icmp
@@ -237,9 +238,9 @@ diverter_usage() {
     Usage: diverter_update [--small] [--medium] [--large]
 
     Options:
-      --small       true if 1000 entries are required
-      --medium      true if 5000 entries are required
-      --large       true if 10000 entries are required
+      --small       true if 1000 entries are needed -> prerequisite: at least 2GB of memory
+      --medium      true if 5000 entries are needed -> prerequisite: at least 4GB of memory
+      --large       true if 10000 entries are needed -> prerequisite: at least 6GB of memory
       -h | --help   help menu
 USAGE
 }
@@ -300,6 +301,7 @@ create_aliases() {
     alias diverter-status="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --check-ebpf-status; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-map-add="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --add-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-map-delete="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --delete-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
+    alias diverter-map-update="sudo $EBPF_HOME/objects/etables"
     alias diverter-update="diverter_update"
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
@@ -326,7 +328,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.2.1"
+    echo "1.2.2"
 }
 
 ### Main
