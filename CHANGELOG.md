@@ -57,3 +57,14 @@ All notable changes to this project will be documented in this file. The format 
     - `diverter-map-delete`    - delete all user ingress rules from ebpf map
     - `diverter-trace`         - show ebpf trace logs
  
+## [1.2.2] - 2023-02-10
+
+### Changed
+
+- nfhelp commands
+    - `diverter-update`         - updated the help message to include memory size requirement
+
+### Added
+
+- nfhelp commands
+    - `diverter-map-update`     - link to the etables program used to update/list ebpf map content
