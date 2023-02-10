@@ -194,7 +194,8 @@ create_nfhelp() {
   diverter-enable        - enable iptables diverter ebpf program
   diverter-disable       - disable iptables diverter ebpf program
   diverter-status        - check if iptables diverter ebpf program is enabled
-  diverter-map           - user space program to access ebpf map
+  diverter-map-add       - add all user ingress rules to ebpf map
+  diverter-map-delete    - delete all user ingress rules from ebpf map
   diverter-update        - update the iptables diverter binary to latest version, needs to pass map size
   diverter-trace         - show ebpf trace logs
   icmp-enable            - enable system to respond to icmp
@@ -297,7 +298,8 @@ create_aliases() {
     alias diverter-enable="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --initial-setup; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-disable="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --revert-tproxy; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-status="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --check-ebpf-status; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
-    alias diverter-map="sudo "$EBPF_HOME"/objects/etables"
+    alias diverter-map-add="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --add-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
+    alias diverter-map-delete="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --delete-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-update="diverter_update"
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
