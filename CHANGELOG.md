@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file. The format 
 - bugfix: PS_COMMAND renamed to STACK_COMMAND & adjusted for versions above 0.26.11 - 
 - bugfix: Determining which CLI command is now based on CLI version instead of Router
 
+
 ## [1.2.0] - 2023-02-03
 
 ### Changed
@@ -45,3 +46,14 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp command
     - `diverter-map`            - user space program to access ebpf map
+
+
+## [1.2.1] - 2023-02-10
+
+### Added
+
+- nfhelp commands
+    - `diverter-map-add`       - add all user ingress rules to ebpf map
+    - `diverter-map-delete`    - delete all user ingress rules from ebpf map
+    - `diverter-trace`         - show ebpf trace logs
+ 
