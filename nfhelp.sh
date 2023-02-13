@@ -196,9 +196,9 @@ create_nfhelp() {
   diverter-status        - check if iptables diverter ebpf program is enabled
   diverter-map-add       - add all user ingress rules to ebpf map read from $EBPF_HOME/user_ingress_rules.yml
   diverter-map-delete    - delete all user ingress rules from ebpf map read from $EBPF_HOME/user_ingress_rules.yml
-  diverter-map-update    - link to the etables program used to update/list ebpf map content
   diverter-update        - update the iptables diverter binary to latest version, needs to pass map size
   diverter-trace         - show ebpf trace logs
+  etables                - link to the etables program used to update/list ebpf map content
   icmp-enable            - enable system to respond to icmp
   icmp-disable           - disable system to respond to icmp
   icmp-status            - current status of icmp
@@ -301,9 +301,9 @@ create_aliases() {
     alias diverter-status="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --check-ebpf-status; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-map-add="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --add-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-map-delete="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --delete-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
-    alias diverter-map-update="sudo $EBPF_HOME/objects/etables"
     alias diverter-update="diverter_update"
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
+    alias etables="sudo $EBPF_HOME/objects/etables"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
     alias icmp-disable="sudo sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules; echo WARNING! This will not take affect until after reboot"
     alias icmp-status="sudo grep 'ufw-before-input.*.icmp' /etc/ufw/before.rules"
