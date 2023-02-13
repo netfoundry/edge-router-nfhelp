@@ -198,7 +198,7 @@ create_nfhelp() {
   diverter-map-delete    - delete all user ingress rules from ebpf map read from $EBPF_HOME/user_ingress_rules.yml
   diverter-update        - update the iptables diverter binary to latest version, needs to pass map size
   diverter-trace         - show ebpf trace logs
-  etables                - link to the etables program used to update/list ebpf map content
+  etables                - link to the etables program used to manage ebpf map content
   icmp-enable            - enable system to respond to icmp
   icmp-disable           - disable system to respond to icmp
   icmp-status            - current status of icmp
