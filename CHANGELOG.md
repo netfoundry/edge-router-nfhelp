@@ -68,3 +68,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp commands
     - `etables`                 - link to the etables program used to manage ebpf map content
+
+## [1.3.0] - 2023-02-15
+
+### Changed
+
+ - Updated logic to handle single ziti binary - basing all functions on ziti cli version.
+ - Updated pid commands from using `pidof` to `systemctl`
