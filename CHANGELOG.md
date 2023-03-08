@@ -75,3 +75,10 @@ All notable changes to this project will be documented in this file. The format 
 
  - Updated logic to handle single ziti binary - basing all functions on ziti cli version.
  - Updated pid commands from using `pidof` to `systemctl`
+
+## [1.3.1] - 2023-03-08
+
+### Changed
+
+- nfhelp commands
+    - `diverter-update`  - added logic to check for the minimum ziti version required to run ebpf, i.e. `if [[ "${ZITI_CLI_VERSION}" > "0.27.2" ]]; then diverter_update... `
