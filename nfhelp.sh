@@ -237,33 +237,37 @@ diverter_update() {
     MEDIUM=false
     LARGE=false
 
-    case $1 in
-      --small)
-          SMALL=true;;
-      --medium)
-          MEDIUM=true;;
-      --large)
-          LARGE=true;;
-      -h | --help)
-          diverter_usage;;
-      *)
-          diverter_usage;;
-    esac
-    
-    if [ $SMALL == true ]; then
-      curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_small > /tmp/tproxy_splicer_small.tar.gz
-      sudo tar xvfz /tmp/tproxy_splicer_small.tar.gz  -C $EBPF_HOME
-      rm /tmp/tproxy_splicer_small.tar.gz
-    fi
-    if [ $MEDIUM == true ]; then
-      curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_medium > /tmp/tproxy_splicer_medium.tar.gz
-      sudo tar xvfz /tmp/tproxy_splicer_medium.tar.gz -C $EBPF_HOME
-      rm /tmp/tproxy_splicer_medium.tar.gz
-    fi
-    if [ $LARGE == true ]; then
-      curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_large > /tmp/tproxy_splicer_large.tar.gz
-      sudo tar xvfz /tmp/tproxy_splicer_large.tar.gz -C $EBPF_HOME
-      rm /tmp/tproxy_splicer_large.tar.gz
+    if [[ "${ZITI_CLI_VERSION}" > "0.27.2" ]]; then 
+      case $1 in
+        --small)
+            SMALL=true;;
+        --medium)
+            MEDIUM=true;;
+        --large)
+            LARGE=true;;
+        -h | --help)
+            diverter_usage;;
+        *)
+            diverter_usage;;
+      esac
+
+      if [ $SMALL == true ]; then
+        curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_small > /tmp/tproxy_splicer_small.tar.gz
+        sudo tar xvfz /tmp/tproxy_splicer_small.tar.gz  -C $EBPF_HOME
+        rm /tmp/tproxy_splicer_small.tar.gz
+      fi
+      if [ $MEDIUM == true ]; then
+        curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_medium > /tmp/tproxy_splicer_medium.tar.gz
+        sudo tar xvfz /tmp/tproxy_splicer_medium.tar.gz -C $EBPF_HOME
+        rm /tmp/tproxy_splicer_medium.tar.gz
+      fi
+      if [ $LARGE == true ]; then
+        curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_large > /tmp/tproxy_splicer_large.tar.gz
+        sudo tar xvfz /tmp/tproxy_splicer_large.tar.gz -C $EBPF_HOME
+        rm /tmp/tproxy_splicer_large.tar.gz
+      fi
+    else
+      echo "INFO: ebpf cannot be installed, the installed ziti version is not 0.27.3 or higher."
     fi
 }
 
@@ -298,7 +302,7 @@ create_aliases() {
     alias diverter-status="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --check-ebpf-status; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-map-add="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --add-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-map-delete="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --delete-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
-    alias diverter-update="if [[ "${ZITI_CLI_VERSION}" > "0.27.2" ]]; then diverter_update;  else echo 'INFO: ebpf cannot be installed, the installed ziti version is not 0.27.3 or higher.'; fi"
+    alias diverter-update=diverter_update
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
     alias etables="sudo $EBPF_HOME/objects/etables"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
@@ -324,7 +328,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.3.1"
+    echo "1.3.2"
 }
 
 ### Main
