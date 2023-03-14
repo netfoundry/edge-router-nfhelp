@@ -82,3 +82,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp commands
     - `diverter-update`  - added logic to check for the minimum ziti version required to run ebpf, i.e. `if [[ "${ZITI_CLI_VERSION}" > "0.27.2" ]]; then diverter_update... `
+
+## [1.3.2] - 2023-03-13
+
+### Fixed
+
+- nfhelp commands
+    - `diverter-update`  - running this command would result in an error; logic to check for version has been moved to the function. Internal task: CLOUDDEV-1110
