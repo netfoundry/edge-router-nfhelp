@@ -237,7 +237,7 @@ diverter_update() {
     MEDIUM=false
     LARGE=false
 
-    if [[ "${ZITI_CLI_VERSION}" > "0.27.2" ]]; then 
+    if [[ $(${ZITI_CLI} --version | cut -d"v" -f 2) > "0.27.2" ]]; then 
       case $1 in
         --small)
             SMALL=true;;
@@ -328,7 +328,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.3.2"
+    echo "1.3.3"
 }
 
 ### Main

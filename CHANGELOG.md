@@ -89,3 +89,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp commands
     - `diverter-update`  - running this command would result in an error; logic to check for version has been moved to the function. Internal task: CLOUDDEV-1110
+
+## [1.3.3] - 2023-05-02
+
+### Fixed
+
+- nfhelp commands
+    - `diverter-update`  - updated diverter-update command to not use command alias but actual command to check for current ziti version
