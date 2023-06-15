@@ -219,11 +219,17 @@ check_intercepts() {
 
 # Diverter update function to the latest version
 diverter_update() {
-  if [[ $(${ZITI_CLI} --version | cut -d"v" -f 2) > "0.27.2" ]]; then 
-    #curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_small > /tmp/tproxy_splicer_small.tar.gz
-    curl -sL https://github.com/sandbox1-dev/zfw/releases/download/v0.3.0/zfw-router_0.3.0_amd64.deb > /tmp/zfw.deb
+  if [[ $(${ZITI_CLI} --version | cut -d"v" -f 2) > "0.27.2" ]]; then
+    arch=`uname -m`
+    if [ $arch == "x86_64" ]; then
+      arch="amd64"
+    fi
+    browser_download_url=`curl -s https://api.github.com/repos/netfoundry/zfw/releases/latest | jq --arg arch $arch -r '.assets[] | select((.name | test("router")) and (.name | test($arch))).browser_download_url'`
+    curl -sL $browser_download_url > /tmp/zfw.deb
     sudo dpkg -i /tmp/zfw.deb
     rm /tmp/zfw.deb
+    zfw -Q
+    sudo systemctl restart ziti-router
   else
     echo "INFO: ebpf cannot be installed, the installed ziti version is not 0.27.3 or higher."
   fi
@@ -231,9 +237,18 @@ diverter_update() {
 
 # Diverter enable function
 diverter_enable() {
-  status=`dpkg -s zfw 2>/dev/null`
-  if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]]; then
-    sudo /opt/openziti/bin/start_ebpf_router.py
+  status=`dpkg -s zfw-router 2>/dev/null`
+  if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]] && [[ -f $EBPF_BIN/start_ebpf_router.py ]]; then
+    sudo $EBPF_BIN/start_ebpf_router.py
+  else 
+    echo 'INFO: ebpf not installed, run diverter-update to install it.'
+  fi
+}
+# Diverter edisable function
+diverter_disable() {
+  status=`dpkg -s zfw-router 2>/dev/null`
+  if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]] && [[ -f $EBPF_BIN/revert_ebpf_router.py ]]; then
+    sudo $EBPF_BIN/revert_ebpf_router.py
   else 
     echo 'INFO: ebpf not installed, run diverter-update to install it.'
   fi
@@ -266,13 +281,13 @@ create_aliases() {
     alias sar-disable="echo 'ENABLED="false"'| sudo tee /etc/default/sysstat"
     alias sar-status="sudo cat /etc/default/sysstat"
     alias diverter-enable=diverter_enable
-    #alias diverter-disable="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --revert-tproxy; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
+    alias diverter-disable=diverter_disable
     alias diverter-status="if [ -f $EBPF_BIN/zfw ]; then sudo $EBPF_BIN/zfw -L -E; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-add-user-rules="if [ -f $EBPF_BIN/zfw ] && [ -f $EBPF_BIN/user/user_rules.sh ]; then sudo $EBPF_BIN/user/user_rules.sh; else echo 'INFO: ebpf not installed or user rules script is not configured, run diverter-update to install it or configure user rules script.'; fi"
     #alias diverter-map-delete="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --delete-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-update=diverter_update
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
-    alias zfw="sudo $EBPF_BIN/zfw"
+    alias zfw=zfw
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
     alias icmp-disable="sudo sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules; echo WARNING! This will not take affect until after reboot"
     alias icmp-status="sudo grep 'ufw-before-input.*.icmp' /etc/ufw/before.rules"
@@ -296,7 +311,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.3.3"
+    echo "1.3.4"
 }
 
 ### Main
@@ -306,3 +321,4 @@ case ${1} in
   *) # run profile
     run_profile;;
 esac
+``
