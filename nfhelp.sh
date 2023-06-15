@@ -177,7 +177,7 @@ create_nfhelp() {
   diverter-enable         - enable diverter ebpf program
   diverter-disable        - disable diverter ebpf program
   diverter-status         - check if diverter ebpf program is enabled
-  diverter-add-user-rules - add all user ingress rules to ebpf map cofnigured in $EBPF_BIN/user/user_rules.sh
+  diverter-add-user-rules - add all user ingress rules to ebpf map configured in $EBPF_BIN/user/user_rules.sh
   diverter-update         - update the diverter ebpf bytecode to latest version
   diverter-trace          - show ebpf trace logs
   zfw                     - link to the zfw program used to manage ebpf map content\n
@@ -284,7 +284,6 @@ create_aliases() {
     alias diverter-disable=diverter_disable
     alias diverter-status="if [ -f $EBPF_BIN/zfw ]; then sudo $EBPF_BIN/zfw -L -E; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-add-user-rules="if [ -f $EBPF_BIN/zfw ] && [ -f $EBPF_BIN/user/user_rules.sh ]; then sudo $EBPF_BIN/user/user_rules.sh; else echo 'INFO: ebpf not installed or user rules script is not configured, run diverter-update to install it or configure user rules script.'; fi"
-    #alias diverter-map-delete="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --delete-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
     alias diverter-update=diverter_update
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
     alias zfw=zfw
@@ -311,7 +310,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.3.4"
+    echo "1.4.0"
 }
 
 ### Main
