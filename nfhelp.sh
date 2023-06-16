@@ -228,7 +228,7 @@ diverter_update() {
     curl -sL $browser_download_url > /tmp/zfw.deb
     sudo dpkg -i /tmp/zfw.deb
     rm /tmp/zfw.deb
-    zfw -Q
+    sudo zfw -Q
     sudo systemctl restart ziti-router
   else
     echo "INFO: ebpf cannot be installed, the installed ziti version is not 0.27.3 or higher."
@@ -286,7 +286,7 @@ create_aliases() {
     alias diverter-add-user-rules="if [ -f $EBPF_BIN/zfw ] && [ -f $EBPF_BIN/user/user_rules.sh ]; then sudo $EBPF_BIN/user/user_rules.sh; else echo 'INFO: ebpf not installed or user rules script is not configured, run diverter-update to install it or configure user rules script.'; fi"
     alias diverter-update=diverter_update
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
-    alias zfw=zfw
+    alias zfw="sudo zfw"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
     alias icmp-disable="sudo sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules; echo WARNING! This will not take affect until after reboot"
     alias icmp-status="sudo grep 'ufw-before-input.*.icmp' /etc/ufw/before.rules"
