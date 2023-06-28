@@ -103,3 +103,9 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp commands
     - `diverter-...`  - all diverter aliases were updated to the new ebpf bytecode, i.e. zfw(-router) from ebpf-tproxy-splicer
+
+## [1.4.1] - 2023-06-28
+
+### Changed
+
+- Switched ip helper to ipinfo.io instead of ipify.org
