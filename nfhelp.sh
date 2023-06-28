@@ -89,7 +89,7 @@ print_net_info() {
 
   if [ ! -f "${HOME}/.hushnet" ]; then
     #IP
-    MYPUBIP=$(curl -s --connect-timeout 15 https://api.ipify.org)
+    MYPUBIP=$(curl -s --connect-timeout 15 https://ipinfo.io/ | jq -r .ip)
 
     # eth0:
     MYIF=$(/sbin/ip -o link show up|awk '$9=="UP" {print $2;}'|head -1)
