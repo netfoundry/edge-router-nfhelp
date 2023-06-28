@@ -96,3 +96,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp commands
     - `diverter-update`  - updated diverter-update command to not use command alias but actual command to check for current ziti version
+
+## [1.4.0] - 2023-06-28
+
+### Changed
+
+- nfhelp commands
+    - `diverter-...`  - all diverter aliases were updated to the new ebpf bytecode, i.e. zfw(-router) from ebpf-tproxy-splicer

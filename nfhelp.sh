@@ -14,9 +14,10 @@
 #
 ### Export Environment variables
 export CLOUD_ZITI_HOME="/opt/netfoundry"
+export OPEN_ZITI_HOME="/opt/openziti"
 export ZITI_HOME="${CLOUD_ZITI_HOME}/ziti"
 export ZITI_CLI="${ZITI_HOME}/ziti"
-export EBPF_HOME="${CLOUD_ZITI_HOME}/ebpf"
+export EBPF_BIN="${OPEN_ZITI_HOME}/bin"
 
 ### Functions
 # version comparison
@@ -173,14 +174,13 @@ create_nfhelp() {
   zt-intercepts       - print current mangle table of NF-INTERCEPT chain - intercept
   zt-upgrade          - upgrade the local ziti software\n
  \033[0;31mDiverter Commands:\033[0m 
-  diverter-enable        - enable iptables diverter ebpf program
-  diverter-disable       - disable iptables diverter ebpf program
-  diverter-status        - check if iptables diverter ebpf program is enabled
-  diverter-map-add       - add all user ingress rules to ebpf map read from $EBPF_HOME/user_ingress_rules.yml
-  diverter-map-delete    - delete all user ingress rules from ebpf map read from $EBPF_HOME/user_ingress_rules.yml
-  diverter-update        - update the iptables diverter binary to latest version, needs to pass map size
-  diverter-trace         - show ebpf trace logs
-  etables                - link to the etables program used to manage ebpf map content\n
+  diverter-enable         - enable diverter ebpf program
+  diverter-disable        - disable diverter ebpf program
+  diverter-status         - check if diverter ebpf program is enabled
+  diverter-add-user-rules - add all user ingress rules to ebpf map configured in $EBPF_BIN/user/user_rules.sh
+  diverter-update         - update the diverter ebpf bytecode to latest version
+  diverter-trace          - show ebpf trace logs
+  zfw                     - link to the zfw program used to manage ebpf map content\n
  \033[0;31mExtra Commands:\033[0m
   sar-enable             - enable sar collection
   sar-disable            - disable sar collection
@@ -203,7 +203,7 @@ check_firewall() {
   if [ $CHECKMODE == null ] || [ $CHECKMODE == "tproxy" ]; then 
     sudo iptables -L NF-INTERCEPT -n -t filter
   else  
-    sudo $EBPF_HOME/objects/etables --list --passthrough
+    sudo $EBPF_BIN/zfw -L -f
   fi
 }
 
@@ -213,62 +213,45 @@ check_intercepts() {
   if [ $CHECKMODE == null ] || [ $CHECKMODE == "tproxy" ]; then 
     sudo iptables -L NF-INTERCEPT -n -t mangle
   else  
-    sudo $EBPF_HOME/objects/etables --list --intercepts
+    sudo $EBPF_BIN/zfw -L -i
   fi
-}
-
-# Called by diverter_update function
-diverter_usage() {
-    cat <<USAGE
-
-    Usage: diverter_update [--small] [--medium] [--large]
-
-    Options:
-      --small       true if 1000 entries are needed -> prerequisite: at least 2GB of memory
-      --medium      true if 5000 entries are needed -> prerequisite: at least 4GB of memory
-      --large       true if 10000 entries are needed -> prerequisite: at least 6GB of memory
-      -h | --help   help menu
-USAGE
 }
 
 # Diverter update function to the latest version
 diverter_update() {
-    SMALL=false
-    MEDIUM=false
-    LARGE=false
-
-    if [[ $(${ZITI_CLI} --version | cut -d"v" -f 2) > "0.27.2" ]]; then 
-      case $1 in
-        --small)
-            SMALL=true;;
-        --medium)
-            MEDIUM=true;;
-        --large)
-            LARGE=true;;
-        -h | --help)
-            diverter_usage;;
-        *)
-            diverter_usage;;
-      esac
-
-      if [ $SMALL == true ]; then
-        curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_small > /tmp/tproxy_splicer_small.tar.gz
-        sudo tar xvfz /tmp/tproxy_splicer_small.tar.gz  -C $EBPF_HOME
-        rm /tmp/tproxy_splicer_small.tar.gz
-      fi
-      if [ $MEDIUM == true ]; then
-        curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_medium > /tmp/tproxy_splicer_medium.tar.gz
-        sudo tar xvfz /tmp/tproxy_splicer_medium.tar.gz -C $EBPF_HOME
-        rm /tmp/tproxy_splicer_medium.tar.gz
-      fi
-      if [ $LARGE == true ]; then
-        curl -sL https://github.com/netfoundry/ebpf-tproxy-splicer/releases/latest/download/tproxy_splicer_large > /tmp/tproxy_splicer_large.tar.gz
-        sudo tar xvfz /tmp/tproxy_splicer_large.tar.gz -C $EBPF_HOME
-        rm /tmp/tproxy_splicer_large.tar.gz
-      fi
-    else
-      echo "INFO: ebpf cannot be installed, the installed ziti version is not 0.27.3 or higher."
+  if [[ $(${ZITI_CLI} --version | cut -d"v" -f 2) > "0.27.2" ]]; then
+    arch=`uname -m`
+    if [ $arch == "x86_64" ]; then
+      arch="amd64"
     fi
+    browser_download_url=`curl -s https://api.github.com/repos/netfoundry/zfw/releases/latest | jq --arg arch $arch -r '.assets[] | select((.name | test("router")) and (.name | test($arch))).browser_download_url'`
+    curl -sL $browser_download_url > /tmp/zfw.deb
+    sudo dpkg -i /tmp/zfw.deb
+    rm /tmp/zfw.deb
+    sudo zfw -Q
+    sudo systemctl restart ziti-router
+  else
+    echo "INFO: ebpf cannot be installed, the installed ziti version is not 0.27.3 or higher."
+  fi
+}
+
+# Diverter enable function
+diverter_enable() {
+  status=`dpkg -s zfw-router 2>/dev/null`
+  if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]] && [[ -f $EBPF_BIN/start_ebpf_router.py ]]; then
+    sudo $EBPF_BIN/start_ebpf_router.py
+  else 
+    echo 'INFO: ebpf not installed, run diverter-update to install it.'
+  fi
+}
+# Diverter edisable function
+diverter_disable() {
+  status=`dpkg -s zfw-router 2>/dev/null`
+  if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]] && [[ -f $EBPF_BIN/revert_ebpf_router.py ]]; then
+    sudo $EBPF_BIN/revert_ebpf_router.py
+  else 
+    echo 'INFO: ebpf not installed, run diverter-update to install it.'
+  fi
 }
 
 # create main aliases
@@ -297,14 +280,13 @@ create_aliases() {
     alias sar-enable="echo 'ENABLED="true"'| sudo tee /etc/default/sysstat"
     alias sar-disable="echo 'ENABLED="false"'| sudo tee /etc/default/sysstat"
     alias sar-status="sudo cat /etc/default/sysstat"
-    alias diverter-enable="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --initial-setup; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
-    alias diverter-disable="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --revert-tproxy; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
-    alias diverter-status="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --check-ebpf-status; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
-    alias diverter-map-add="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --add-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
-    alias diverter-map-delete="if [ -f $EBPF_HOME/scripts/tproxy_splicer_startup.sh ]; then sudo $EBPF_HOME/scripts/tproxy_splicer_startup.sh --delete-user-ingress-rules; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
+    alias diverter-enable=diverter_enable
+    alias diverter-disable=diverter_disable
+    alias diverter-status="if [ -f $EBPF_BIN/zfw ]; then sudo $EBPF_BIN/zfw -L -E; else echo 'INFO: ebpf not installed, run diverter-update to install it.'; fi"
+    alias diverter-add-user-rules="if [ -f $EBPF_BIN/zfw ] && [ -f $EBPF_BIN/user/user_rules.sh ]; then sudo $EBPF_BIN/user/user_rules.sh; else echo 'INFO: ebpf not installed or user rules script is not configured, run diverter-update to install it or configure user rules script.'; fi"
     alias diverter-update=diverter_update
     alias diverter-trace="sudo cat /sys/kernel/debug/tracing/trace_pipe"
-    alias etables="sudo $EBPF_HOME/objects/etables"
+    alias zfw="sudo zfw"
     alias icmp-enable="sudo sed -i '/ufw-before-input.*icmp/s/DROP/ACCEPT/g' /etc/ufw/before.rules; sudo ufw reload"
     alias icmp-disable="sudo sed -i '/ufw-before-input.*icmp/s/ACCEPT/DROP/g' /etc/ufw/before.rules; echo WARNING! This will not take affect until after reboot"
     alias icmp-status="sudo grep 'ufw-before-input.*.icmp' /etc/ufw/before.rules"
@@ -328,7 +310,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.3.3"
+    echo "1.4.0"
 }
 
 ### Main
@@ -338,3 +320,4 @@ case ${1} in
   *) # run profile
     run_profile;;
 esac
+``
