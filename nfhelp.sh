@@ -310,7 +310,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.4.0"
+    echo "1.4.1"
 }
 
 ### Main
