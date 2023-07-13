@@ -109,3 +109,10 @@ All notable changes to this project will be documented in this file. The format 
 ### Changed
 
 - Switched ip helper to ipinfo.io instead of ipify.org
+
+## [1.4.2] - 2023-07-13
+
+### Added
+
+- nfhelp commands
+    - `zt-erhchecker-update`  - download/update hc checker script that can be used by program like vrrp to evaluate the state of the edge-router

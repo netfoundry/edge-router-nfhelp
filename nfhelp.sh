@@ -152,20 +152,21 @@ create_nfhelp() {
   
   alias nfhelp='if [[ -f "${ZITI_CLI}" ]]; then echo -e "
  \033[0;31mRouter Commands:\033[0m
-  router-registration - register ziti router
-  zt-router-pid       - print process id of currently running ziti-router
-  zt-router-version   - print ziti-router version
-  zt-router-logs      - tail ziti router logs
-  zt-router-restart   - restart ziti-router service
-  zt-router-start     - start ziti-router service
-  zt-router-stop      - stop ziti-router service
-  zt-router-status    - print ziti-router system service status
-  zt-router-health    - print current router healthcheck
-  zt-status           - print status of all ziti services
-  zt-router-cpu       - create pprof cpu of currently running ziti-router
-  zt-router-stack     - create stack trace of currently running ziti-router
-  zt-router-mem       - create memstats of currently running ziti-router
-  zt-router-heap      - create pprof heap of currently running ziti-router\n
+  router-registration  - register ziti router
+  zt-router-pid        - print process id of currently running ziti-router
+  zt-router-version    - print ziti-router version
+  zt-router-logs       - tail ziti router logs
+  zt-router-restart    - restart ziti-router service
+  zt-router-start      - start ziti-router service
+  zt-router-stop       - stop ziti-router service
+  zt-router-status     - print ziti-router system service status
+  zt-router-health     - print current router healthcheck
+  zt-erhchecker-update - download/update hc checker script that can be used by program like vrrp to evaluate the state of the edge-router
+  zt-status            - print status of all ziti services
+  zt-router-cpu        - create pprof cpu of currently running ziti-router
+  zt-router-stack      - create stack trace of currently running ziti-router
+  zt-router-mem        - create memstats of currently running ziti-router
+  zt-router-heap       - create pprof heap of currently running ziti-router\n
  \033[0;31mSupport Commands:\033[0m
   vm-support-bundle   - create a vm support bundle & upload it (requires ticket number)
   zt-logs-zip         - create a zip file of all ziti logs, cpu & stacks on the machine
@@ -254,6 +255,22 @@ diverter_disable() {
   fi
 }
 
+# Health Checker Script update function to the latest version
+erhchecker_update() {
+  if [[ $(${ZITI_CLI} --version | cut -d"v" -f 2) > "0.28.0" ]]; then
+    arch=`uname -m`
+    if [ $arch == "x86_64" ]; then
+      arch="amd64"
+    fi
+    browser_download_url=`curl -s https://api.github.com/repos/netfoundry/edge-router-health-checker/releases/latest | jq --arg arch $arch -r '.assets[] | select(.name | test($arch)).browser_download_url'`
+    curl -sL $browser_download_url > /tmp/erhchecker.tar.gz
+    sudo tar xzf /tmp/erhchecker.tar.gz -C $CLOUD_ZITI_HOME
+    rm /tmp/erhchecker.tar.gz
+  else
+    echo "INFO: erhchecker script cannot be installed, the installed ziti version is not 0.28.1 or higher."
+  fi
+}
+
 # create main aliases
 create_aliases() {
 
@@ -270,6 +287,7 @@ create_aliases() {
     alias zt-router-stop="sudo systemctl stop ziti-router"
     alias zt-router-status="sudo systemctl status ziti-router --no-pager"
     alias zt-router-health="curl -k https://localhost:8081/health-checks"
+    alias zt-erhchecker-update=erhchecker_update
     alias zt-tcpdump="echo Press Ctrl-C to stop dump;export DATE=\$(date +"%y-%m-%d-%s"); sudo tcpdump -w /tmp/ziti-tcpdump-\$DATE.pcap;echo Created /tmp/ziti-tcpdump-\$DATE.pcap; unset DATE"
     alias zt-firewall-rules="check_firewall"
     alias zt-intercepts="check_intercepts"
@@ -310,7 +328,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.4.1"
+    echo "1.4.2"
 }
 
 ### Main
