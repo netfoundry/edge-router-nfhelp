@@ -116,3 +116,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp commands
     - `zt-erhchecker-update`  - download/update hc checker script that can be used by program like vrrp to evaluate the state of the edge-router
+
+## [1.4.3] - 2023-07-14
+
+### Fixed
+
+- nfhelp commands
+    - `diverter-enable`  - updated diverter-enable command to restart the ziti-edge-router every time

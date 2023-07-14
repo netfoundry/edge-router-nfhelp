@@ -241,6 +241,7 @@ diverter_enable() {
   status=`dpkg -s zfw-router 2>/dev/null`
   if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]] && [[ -f $EBPF_BIN/start_ebpf_router.py ]]; then
     sudo $EBPF_BIN/start_ebpf_router.py
+    sudo systemctl restart ziti-router
   else 
     echo 'INFO: ebpf not installed, run diverter-update to install it.'
   fi
@@ -328,7 +329,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.4.2"
+    echo "1.4.3"
 }
 
 ### Main
