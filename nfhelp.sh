@@ -321,6 +321,12 @@ create_aliases() {
     alias nfhelp-version="/etc/profile.d/nfhelp.sh -v"
 }
 
+ziti_auto_complete(){
+
+   source <("${ZITI_CLI}" completion bash)
+
+}
+
 # setup the profile
 run_profile(){
     add_netfoundry_path
@@ -330,11 +336,12 @@ run_profile(){
     print_register
     create_nfhelp
     create_aliases
+    ziti_auto_complete
 }
 
 # print version
 version(){
-    echo "1.4.4"
+    echo "1.5.0"
 }
 
 ### Main
