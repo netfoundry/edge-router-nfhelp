@@ -322,9 +322,9 @@ create_aliases() {
 }
 
 ziti_auto_complete(){
-
-   source <("${ZITI_CLI}" completion bash)
-
+    if [[ -f ${ZITI_CLI} ]]; then
+      source <("${ZITI_CLI}" completion bash)
+    fi
 }
 
 # setup the profile
