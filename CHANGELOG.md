@@ -123,3 +123,9 @@ All notable changes to this project will be documented in this file. The format 
 
 - nfhelp commands
     - `diverter-enable`  - updated diverter-enable command to restart the ziti-edge-router every time
+
+## [1.4.4] - 2023-09-13
+
+### Fixed
+
+- Added pid flag to agent commands for version above 0.28.0.

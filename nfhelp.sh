@@ -116,6 +116,11 @@ print_binary_info() {
       LOG_COMMAND="ops log-format -a"
       STACK_COMMAND="agent"
       alias zt-router-version="${ZITI_CLI} --version 2> /dev/null | cut -d'v' -f 2"
+      if vercomp "0.28.0" "${ZITI_CLI_VERSION}"; then
+        PID_FLAG="-p"
+      else
+        PID_FLAG=""
+      fi
     else
       printf '\nCLI version: %s' "${ZITI_CLI_VERSION}"
       export ZITI_ROUTER="${ZITI_HOME}/ziti-router/ziti-router"
@@ -279,10 +284,10 @@ create_aliases() {
     alias ziti="${ZITI_CLI}"
     alias zt-router-pid="systemctl show --property MainPID --value ziti-router"
     alias zt-router-logs="journalctl -u ziti-router -efo cat | ${ZITI_CLI} ${LOG_COMMAND}"
-    alias zt-router-cpu="export DATE=\$(date +"%y-%m-%d-%s") ;sudo -E ${ZITI_CLI} ${STACK_COMMAND} pprof-cpu \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-cpu-\$DATE.out; echo Created /tmp/ziti-router-cpu-\$DATE.out; unset DATE"
-    alias zt-router-stack="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} stack \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-stack-\$DATE.out; echo Created /tmp/ziti-router-stack-\$DATE.out; unset DATE"
-    alias zt-router-mem="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} memstats \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-mem-\$DATE.out; echo Created /tmp/ziti-router-mem-\$DATE.out; unset DATE"
-    alias zt-router-heap="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} pprof-heap \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-heap-\$DATE.out; echo Created /tmp/ziti-router-heap-\$DATE.out; unset DATE"
+    alias zt-router-cpu="export DATE=\$(date +"%y-%m-%d-%s") ;sudo -E ${ZITI_CLI} ${STACK_COMMAND} pprof-cpu ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-cpu-\$DATE.out; echo Created /tmp/ziti-router-cpu-\$DATE.out; unset DATE"
+    alias zt-router-stack="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} stack ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-stack-\$DATE.out; echo Created /tmp/ziti-router-stack-\$DATE.out; unset DATE"
+    alias zt-router-mem="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} memstats ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-mem-\$DATE.out; echo Created /tmp/ziti-router-mem-\$DATE.out; unset DATE"
+    alias zt-router-heap="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} pprof-heap ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-heap-\$DATE.out; echo Created /tmp/ziti-router-heap-\$DATE.out; unset DATE"
     alias zt-router-restart="sudo systemctl restart ziti-router"
     alias zt-router-start="sudo systemctl start ziti-router"
     alias zt-router-stop="sudo systemctl stop ziti-router"
@@ -329,7 +334,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.4.3"
+    echo "1.4.4"
 }
 
 ### Main

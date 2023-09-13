@@ -25,22 +25,13 @@ jobs:
         run: tar -zcvf nfhelp.tar.gz nfhelp.sh
 
       - name: release
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
         id: release
         with:
           draft: false
           prerelease: false
-          release_name: v${{ env.version }}
-          tag_name: v${{ env.version }}
+          tag: v${{ env.version }}
+          artifacts: nfhelp.tar.gz
+          artifactContentType: application/gzip
         env:
           GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Upload a Build Artifact for release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: nfhelp.tar.gz
-          asset_name: nfhelp.tar.gz
-          asset_content_type: application/gzip
