@@ -116,7 +116,7 @@ print_binary_info() {
       LOG_COMMAND="ops log-format -a"
       STACK_COMMAND="agent"
       alias zt-router-version="${ZITI_CLI} --version 2> /dev/null | cut -d'v' -f 2"
-      if vercomp "0.28.0" "${ZITI_CLI_VERSION}"; then
+      if vercomp "0.27.9" "${ZITI_CLI_VERSION}"; then
         PID_FLAG="-p"
       else
         PID_FLAG=""
@@ -341,7 +341,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.5.0"
+    echo "1.5.1"
 }
 
 ### Main
