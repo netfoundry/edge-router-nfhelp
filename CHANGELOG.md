@@ -129,3 +129,9 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - Added pid flag to agent commands for version above 0.28.0.
+
+## [1.5.0] - 2023-09.13
+
+### Changed
+
+- Added ziti auto complete
