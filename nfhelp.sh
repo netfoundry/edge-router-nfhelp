@@ -112,7 +112,7 @@ print_binary_info() {
   if [[ -f ${ZITI_CLI} ]]; then
     ZITI_CLI_VERSION=$(${ZITI_CLI} --version | cut -d"v" -f 2)
     if vercomp "0.26.11" "${ZITI_CLI_VERSION}"; then
-      printf '\nziti version: %s' "${ZITI_CLI_VERSION}"
+      printf '\nziti version: %s\n' "${ZITI_CLI_VERSION}"
       LOG_COMMAND="ops log-format -a"
       STACK_COMMAND="agent"
       alias zt-router-version="${ZITI_CLI} --version 2> /dev/null | cut -d'v' -f 2"
@@ -280,7 +280,7 @@ erhchecker_update() {
 # create main aliases
 create_aliases() {
 
-    alias router-registration="sudo /opt/netfoundry/router-registration"
+    alias router-registration="sudo -E /opt/netfoundry/router-registration"
     alias ziti="${ZITI_CLI}"
     alias zt-router-pid="systemctl show --property MainPID --value ziti-router"
     alias zt-router-logs="journalctl -u ziti-router -efo cat | ${ZITI_CLI} ${LOG_COMMAND}"
@@ -341,7 +341,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.5.1"
+    echo "1.5.2"
 }
 
 ### Main
