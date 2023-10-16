@@ -297,10 +297,10 @@ create_aliases() {
     alias zt-tcpdump="echo Press Ctrl-C to stop dump;export DATE=\$(date +"%y-%m-%d-%s"); sudo tcpdump -w /tmp/ziti-tcpdump-\$DATE.pcap;echo Created /tmp/ziti-tcpdump-\$DATE.pcap; unset DATE"
     alias zt-firewall-rules="check_firewall"
     alias zt-intercepts="check_intercepts"
-    alias zt-upgrade="sudo /opt/netfoundry/zt-upgrade"
+    alias zt-upgrade="sudo -E /opt/netfoundry/zt-upgrade"
     alias zt-status="sudo systemctl status ziti-router --no-pager; sudo systemctl status ziti-tunnel --no-pager"
     alias zt-logs-zip="export DATE=\$(date +"%y-%m-%d-%s") ;journalctl -u ziti-tunnel --no-pager --since '1 day ago' > /tmp/ziti-tunnel-\$DATE.log;journalctl -u ziti-router --no-pager --since '1 day ago' > /tmp/ziti-router-\$DATE.log; zip -r /home/$USER/ziti-logs-\$DATE.zip /tmp/ziti*.log /tmp/ziti*.out /tmp/ziti*.pcap; echo Created /home/$USER/ziti-logs-\$DATE.zip; unset DATE; sudo rm /tmp/ziti*"
-    alias vm-support-bundle="sudo /opt/netfoundry/vm-support-bundle"
+    alias vm-support-bundle="sudo -E /opt/netfoundry/vm-support-bundle"
     alias sar-enable="echo 'ENABLED="true"'| sudo tee /etc/default/sysstat"
     alias sar-disable="echo 'ENABLED="false"'| sudo tee /etc/default/sysstat"
     alias sar-status="sudo cat /etc/default/sysstat"
@@ -341,7 +341,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.5.2"
+    echo "1.5.3"
 }
 
 ### Main
