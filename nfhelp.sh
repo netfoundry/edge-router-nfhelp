@@ -247,6 +247,14 @@ diverter_enable() {
   if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]] && [[ -f $EBPF_BIN/start_ebpf_router.py ]]; then
     sudo $EBPF_BIN/start_ebpf_router.py
     sudo systemctl restart ziti-router
+    zfw_log_is_active=`systemctl is-active zfw-logging.service`
+    zfw_log_is_enabled=`systemctl is-enabled zfw-logging.service`
+    if [[ "$zfw_log_is_active" == "inactive" ]]; then
+      sudo systemctl start zfw-logging.service
+    fi
+    if [[ "$zfw_log_is_enabled" == "disabled" ]]; then
+      sudo systemctl enable zfw-logging.service
+    fi
   else 
     echo 'INFO: ebpf not installed, run diverter-update to install it.'
   fi
@@ -256,6 +264,14 @@ diverter_disable() {
   status=`dpkg -s zfw-router 2>/dev/null`
   if [[ `echo $status |awk -F'[[:space:]]+|=' '{print $4}'` == "install" ]] && [[ -f $EBPF_BIN/revert_ebpf_router.py ]]; then
     sudo $EBPF_BIN/revert_ebpf_router.py
+    zfw_log_is_active=`systemctl is-active zfw-logging.service`
+    zfw_log_is_enabled=`systemctl is-enabled zfw-logging.service`
+    if [[ "$zfw_log_is_active" == "active" ]]; then
+      sudo systemctl stop zfw-logging.service
+    fi
+    if [[ "$zfw_log_is_enabled" == "enabled" ]]; then
+      sudo systemctl disable zfw-logging.service
+    fi
   else 
     echo 'INFO: ebpf not installed, run diverter-update to install it.'
   fi
@@ -341,7 +357,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.5.3"
+    echo "1.5.4"
 }
 
 ### Main
