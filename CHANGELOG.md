@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.5] - 2026-11-23
+
+### Fixed
+
+- Replaced "sudo -E" with an explicit "sudo --preserve-env" list (NF_PORT_BYPASS and proxy vars) on router-registration, zt-upgrade & vm-support-bundle aliases; sudo-rs on Ubuntu 26.04 ignores "-E"
+- Removed unneeded "-E" from zt-router-cpu alias
+
 ## [1.5.4] - 2024-04-01
 
 ### Added
