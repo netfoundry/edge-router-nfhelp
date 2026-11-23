@@ -18,6 +18,8 @@ export OPEN_ZITI_HOME="/opt/openziti"
 export ZITI_HOME="${CLOUD_ZITI_HOME}/ziti"
 export ZITI_CLI="${ZITI_HOME}/ziti"
 export EBPF_BIN="${OPEN_ZITI_HOME}/bin"
+# Env vars passed through sudo. Explicit list because sudo-rs (Ubuntu 26.04+) ignores "sudo -E".
+NF_SUDO_ENV="NF_PORT_BYPASS,http_proxy,https_proxy,no_proxy,HTTP_PROXY,HTTPS_PROXY,NO_PROXY"
 
 ### Functions
 # version comparison
@@ -296,11 +298,11 @@ erhchecker_update() {
 # create main aliases
 create_aliases() {
 
-    alias router-registration="sudo -E /opt/netfoundry/router-registration"
+    alias router-registration="sudo --preserve-env=${NF_SUDO_ENV} /opt/netfoundry/router-registration"
     alias ziti="${ZITI_CLI}"
     alias zt-router-pid="systemctl show --property MainPID --value ziti-router"
     alias zt-router-logs="journalctl -u ziti-router -efo cat | ${ZITI_CLI} ${LOG_COMMAND}"
-    alias zt-router-cpu="export DATE=\$(date +"%y-%m-%d-%s") ;sudo -E ${ZITI_CLI} ${STACK_COMMAND} pprof-cpu ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-cpu-\$DATE.out; echo Created /tmp/ziti-router-cpu-\$DATE.out; unset DATE"
+    alias zt-router-cpu="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} pprof-cpu ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-cpu-\$DATE.out; echo Created /tmp/ziti-router-cpu-\$DATE.out; unset DATE"
     alias zt-router-stack="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} stack ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-stack-\$DATE.out; echo Created /tmp/ziti-router-stack-\$DATE.out; unset DATE"
     alias zt-router-mem="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} memstats ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-mem-\$DATE.out; echo Created /tmp/ziti-router-mem-\$DATE.out; unset DATE"
     alias zt-router-heap="export DATE=\$(date +"%y-%m-%d-%s") ;sudo ${ZITI_CLI} ${STACK_COMMAND} pprof-heap ${PID_FLAG} \$(systemctl show --property MainPID --value ziti-router) > /tmp/ziti-router-heap-\$DATE.out; echo Created /tmp/ziti-router-heap-\$DATE.out; unset DATE"
@@ -313,10 +315,10 @@ create_aliases() {
     alias zt-tcpdump="echo Press Ctrl-C to stop dump;export DATE=\$(date +"%y-%m-%d-%s"); sudo tcpdump -w /tmp/ziti-tcpdump-\$DATE.pcap;echo Created /tmp/ziti-tcpdump-\$DATE.pcap; unset DATE"
     alias zt-firewall-rules="check_firewall"
     alias zt-intercepts="check_intercepts"
-    alias zt-upgrade="sudo -E /opt/netfoundry/zt-upgrade"
+    alias zt-upgrade="sudo --preserve-env=${NF_SUDO_ENV} /opt/netfoundry/zt-upgrade"
     alias zt-status="sudo systemctl status ziti-router --no-pager; sudo systemctl status ziti-tunnel --no-pager"
     alias zt-logs-zip="export DATE=\$(date +"%y-%m-%d-%s") ;journalctl -u ziti-tunnel --no-pager --since '1 day ago' > /tmp/ziti-tunnel-\$DATE.log;journalctl -u ziti-router --no-pager --since '1 day ago' > /tmp/ziti-router-\$DATE.log; zip -r /home/$USER/ziti-logs-\$DATE.zip /tmp/ziti*.log /tmp/ziti*.out /tmp/ziti*.pcap; echo Created /home/$USER/ziti-logs-\$DATE.zip; unset DATE; sudo rm /tmp/ziti*"
-    alias vm-support-bundle="sudo -E /opt/netfoundry/vm-support-bundle"
+    alias vm-support-bundle="sudo --preserve-env=${NF_SUDO_ENV} /opt/netfoundry/vm-support-bundle"
     alias sar-enable="echo 'ENABLED="true"'| sudo tee /etc/default/sysstat"
     alias sar-disable="echo 'ENABLED="false"'| sudo tee /etc/default/sysstat"
     alias sar-status="sudo cat /etc/default/sysstat"
@@ -357,7 +359,7 @@ run_profile(){
 
 # print version
 version(){
-    echo "1.5.4"
+    echo "1.5.5"
 }
 
 ### Main
